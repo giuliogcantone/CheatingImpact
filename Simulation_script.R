@@ -26,7 +26,7 @@ for (i in 1:100000) {
   # This is nested in Eq. 1
 Results$multipl[i] = runif(1,300,1800)
 
-# Look at at Eq. 1
+# Look at Eq. 1
 Results$n[i] = (200.5 + abs(rnorm(1,
                                  Results$multipl[i],
                                  (Results$multipl[i]+200)/4))) %>%
@@ -77,7 +77,6 @@ Agents %>% arrange(-Score) -> Agents
 ### Statistical evaluation of the Universe starts here
 
 # Shuffle coefficient
-
 Results$Shuff_coeff[i] = runif(1,.4,.6)
 
 # Rank correlations

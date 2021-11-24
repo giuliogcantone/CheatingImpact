@@ -1,30 +1,35 @@
 library(tidyverse)
-options(scipen = 999, digits = 4)
+options(scipen = 999, digits = 6)
 
-attach(Results)
-median(n)
-sd(n)
-median(avg_t)
-sd(avg_t)
-median(Y)
-sd(Y)
-median(Y_200)
-sd(Y_200)
-median(Y_Shuff)
-sd(Y_Shuff)
-median(J)
-sd(J)
-median(J_200)
-sd(J_200)
-median(J_Shuff)
-sd(J_Shuff)
-detach(Results)
 
 ###
 library(xtable)
 
 Results$Cheater_p %>% cut_width(.04, boundary = 0) %>% table()
 Results$Cheater_p %>% cut_width(.04, boundary = 0) -> Results$Cheat_lvl
+
+mean(Results$Y_200 - Results$Y)
+
+Results %>% summarise(n_ = mean(n),
+                      sd_n = sd(n),
+                      Y_ = mean(Y),
+                      sdY = sd(Y),
+                      J_ = mean(J),
+                      sdJ = sd(J),
+                      avg_t_ = mean(avg_t),
+                      sd_avg_t = sd(avg_t),
+                      p = mean(Cheater_p),
+                      sd_p = sd(Cheater_p),
+                      ATEYI = mean(Y_200 - Y),
+                      sdATEYI = sd(Y_200 - Y),
+                      ATEYII = mean(Y_Shuff - Y),
+                      sdATEYII = sd(Y_Shuff - Y),
+                      ATEJI = mean(J_200 - J),
+                      sdATEJI = sd(J_200 - J),
+                      ATEJII = mean(J_Shuff - J),
+                      sdATEJII = sd(J_Shuff - J),
+                      ) %>% View()
+  xtable(type= "latex")
 
 Results %>% group_by(Cheat_lvl) %>% summarise(median(Y),
                                               median(Y_200),
@@ -34,23 +39,31 @@ Results %>% group_by(Cheat_lvl) %>% summarise(median(Y),
                                               median(J_Shuff)) %>%
   xtable(type= "latex")
 
+
+
 ###
 
-Results$avg_t %>% cut(breaks = c(.3,.45,.55,.625,.675,.725)) %>% table()
-Results$avg_t %>% cut(breaks = c(.3,.45,.55,.625,.675,.725)) -> Results$T_levels
 
-Results %>% group_by(T_levels) %>% summarise( n(),
-                                              median(Y),
-                                              median(Y_200),
-                                              median(Y_Shuff),
-                                              median(J),
-                                              median(J_200),
-                                              median(J_Shuff)) %>%
+Results$multipl %>% cut_width(300, boundary = 0) %>% table()
+Results$multipl %>% cut_width(300, boundary = 0) -> Results$miu_levels
+
+Results %>% group_by(miu_levels, Cheat_lvl) %>%
+  summarise( n(),
+  mean(Y_200 - Y),
+  mean(Y_Shuff - Y),
+  mean(J_200 - J),
+  mean(J_Shuff - J)
+  ) %>% 
   xtable(type= "latex")
 
-xtable()
+?x
+
+
 
 ###
+
+
+
 
 mean(Results$Y_200 - Results$Y)
 mean(Results$Y_Shuff - Results$Y)
@@ -120,3 +133,32 @@ ggplot(Results, aes(x = (J_Shuff - J) / 100,
   theme_classic() -> p4
 
 ###
+
+
+###
+library(broom)
+options(scipen = 999, digits = 1)
+
+lm(scale(Y_200 - Y) ~
+     scale(Cheater_p) +
+     scale(multipl) +
+     scale(q), data = Results) %>% tidy() %>%
+  mutate_if(is.numeric, round, 5)
+
+lm(scale(Y_Shuff - Y) ~
+     scale(Cheater_p) +
+     scale(multipl) +
+     scale(q), data = Results) %>% tidy() %>%
+  mutate_if(is.numeric, round, 5)
+
+lm(scale(J_200 - J) ~
+     scale(Cheater_p) +
+     scale(multipl) +
+     scale(q), data = Results) %>% tidy() %>%
+  mutate_if(is.numeric, round, 5)
+
+lm(scale(J_Shuff - J) ~
+     scale(Cheater_p) +
+     scale(multipl) +
+     scale(q), data = Results) %>% tidy() %>%
+  mutate_if(is.numeric, round, 5)
